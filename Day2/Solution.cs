@@ -20,7 +20,7 @@ namespace Day2
                 { "blue", 14 }
             };
         }
-        private int Solve()
+        private int SolvePart1()
         {
             if (!File.Exists(FilePath))
                 return -1;
@@ -58,10 +58,51 @@ namespace Day2
             }
             return true;
         }
+        private int SolvePart2()
+        {
+            if (!File.Exists(FilePath))
+                return -1;
+            using (StreamReader sr = new StreamReader(FilePath))
+            {
+                int powerSum = 0;
+                while (sr.Peek() >= 0)
+                {
+                    string game = sr.ReadLine()!;
+                    powerSum += CalculatePower(game);
+                }
+                return powerSum;
+            }
+        }
+        private int CalculatePower(string game)
+        {
+            game = game.Substring(game.IndexOf(':') + 1);
+            Dictionary<string, int> minColorCounts = new Dictionary<string, int>()
+            {
+                { "red", 1 },
+                { "green", 1 },
+                { "blue", 1 }
+            };
+            foreach (string round in game.Split(';'))
+            {
+                foreach (KeyValuePair<string, int> kvp in colorCounts)
+                {
+                    int colorInd = round.IndexOf(kvp.Key);
+                    if (colorInd == -1) continue;
+                    int count = 0;
+                    int i = colorInd - 2;
+                    for (i = colorInd - 2; i >= 0 && round[i] >= '0' && round[i] <= '9'; --i) ;
+                    for (i = i + 1; i <= colorInd - 2; ++i)
+                        count = count * 10 + round[i] - '0';
+                    minColorCounts[kvp.Key] = Math.Max(minColorCounts[kvp.Key], count);
+                }
+            }
+            return minColorCounts.Values.Aggregate(1, (x, y) => x * y);
+        }
         public static void Main()
         {
             Solution solution = new Solution();
-            Console.WriteLine(solution.Solve());
+            Console.WriteLine(solution.SolvePart1());
+            Console.WriteLine(solution.SolvePart2());
         }
     }
 }
