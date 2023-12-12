@@ -27,11 +27,24 @@ namespace Day3
                 return -1;
             using (StreamReader sr = new StreamReader(FilePath))
             {
-
+                int sum = 0;
+                if (sr.Peek()  > 0)
+                {
+                    string? linePrev = null;
+                    string? line = null;
+                    string? lineNext = sr.ReadLine();
+                    while(sr.Peek() > 0)
+                    {
+                        linePrev = line;
+                        line = lineNext;
+                        lineNext = sr.ReadLine();
+                        sum += ProcessLine(linePrev, line, lineNext);
+                    }
+                }
+                return sum;
             }
-            return 0;
         }
-        private int ProcessLine(string linePrev, string line, string lineNext)
+        private int ProcessLine(string? linePrev, string? line, string? lineNext)
         {
             int sum = 0;
             int number = 0;
@@ -39,12 +52,24 @@ namespace Day3
             bool include = false;
             for(int i = 0; i < line.Length; ++i)
             {
-                inNumber = Char.IsNumber(line[i]);
-                //include |= (linePrev != null && linePrev[i])
-                if(inNumber)
+                inNumber = char.IsNumber(line[i]);
+                include |= (linePrev != null && linePrev[i] != '.' && !char.IsNumber(linePrev[i])) ||
+                    (lineNext != null && lineNext[i] != '.' && !char.IsNumber(lineNext[i]));
+                if (inNumber)
+                    Console.Write("");
+                if (inNumber)
                 {
-                    number = number * 10 + line[i];
-                    
+                    number = number * 10 + line[i] - '0';
+                }
+                else
+                {
+                    if(include)
+                    {
+                        sum += number;
+                    }
+                    number = 0;
+                    include = (linePrev != null && linePrev[i] != '.' && char.IsNumber(linePrev[i])) ||
+                    (lineNext != null && lineNext[i] != '.' && char.IsNumber(lineNext[i]));
                 }
             }
             return sum;
